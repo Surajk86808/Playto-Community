@@ -295,7 +295,7 @@ This project is licensed under the MIT License.
 
 ## 👨‍💻 Author
 
-Your Name - [GitHub Profile](https://github.com/surajk86808)
+Suraj Kumar - [GitHub Profile](https://github.com/surajk86808)
 
 ## 🙏 Acknowledgments
 
