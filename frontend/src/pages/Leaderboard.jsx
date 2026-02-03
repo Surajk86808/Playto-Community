@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/leaderboard.css";
+import { API_BASE } from "../apiBase";
 
 function Leaderboard() {
   const accessToken = localStorage.getItem("access");
@@ -12,7 +13,7 @@ function Leaderboard() {
 
   const fetchLeaderboard = async () => {
     setMessage("");
-    const res = await fetch("http://127.0.0.1:8000/api/leaderboard/");
+    const res = await fetch(`${API_BASE}/api/leaderboard/`);
     if (!res.ok) {
       setMessage("Failed to load leaderboard");
       return;
@@ -23,7 +24,7 @@ function Leaderboard() {
 
   const fetchMe = async () => {
     if (!accessToken) return;
-    const res = await fetch("http://127.0.0.1:8000/api/leaderboard/me/", {
+    const res = await fetch(`${API_BASE}/api/leaderboard/me/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

@@ -1,6 +1,7 @@
 import "../styles/feed.css";
 import "../styles/post.css";
 import { useEffect, useState } from "react";
+import { API_BASE } from "../apiBase";
 
 function Feed() {
   const accessToken = localStorage.getItem("access");
@@ -13,7 +14,7 @@ function Feed() {
   const [commentErrorByPost, setCommentErrorByPost] = useState({});
 
   const fetchPosts = async () => {
-    const res = await fetch("http://127.0.0.1:8000/api/posts/?limit=10");
+    const res = await fetch(`${API_BASE}/api/posts/?limit=10`);
     const data = await res.json();
     setPosts(data);
   };
@@ -23,7 +24,7 @@ function Feed() {
   }, []);
 
   const loadComments = async (postId) => {
-    const res = await fetch(`http://127.0.0.1:8000/api/comments/post/${postId}/`);
+    const res = await fetch(`${API_BASE}/api/comments/post/${postId}/`);
     const data = await res.json();
     setCommentsByPost((prev) => ({ ...prev, [postId]: data }));
     setOpenCommentsByPost((prev) => ({ ...prev, [postId]: true }));
@@ -35,7 +36,7 @@ function Feed() {
       setMessage("Please login to like posts");
       return;
     }
-    const res = await fetch(`http://127.0.0.1:8000/api/likes/post/${postId}/`, {
+    const res = await fetch(`${API_BASE}/api/likes/post/${postId}/`, {
       method: "POST",
       headers: {
         Authorization: accessToken ? `Bearer ${accessToken}` : "",
@@ -66,7 +67,7 @@ function Feed() {
       return;
     }
 
-    const res = await fetch(`http://127.0.0.1:8000/api/comments/post/${postId}/`, {
+    const res = await fetch(`${API_BASE}/api/comments/post/${postId}/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -128,7 +129,7 @@ function Feed() {
 
           {post.content && <p>{post.content}</p>}
           {post.image && (
-            <img className="post-image" src={`http://127.0.0.1:8000${post.image}`} alt="post" />
+            <img className="post-image" src={`${API_BASE}${post.image}`} alt="post" />
           )}
 
           <div className="actions">

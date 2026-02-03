@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";   // ✅ ADD THIS
 import "../styles/auth.css";
+import { API_BASE } from "../apiBase";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -12,7 +13,7 @@ function Register() {
   const register = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("http://127.0.0.1:8000/api/accounts/register/", {
+    const res = await fetch(`${API_BASE}/api/accounts/register/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

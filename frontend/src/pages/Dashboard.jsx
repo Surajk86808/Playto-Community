@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE } from "../apiBase";
 import "../styles/dashboard.css";
 
 function Dashboard() {
@@ -14,7 +15,7 @@ function Dashboard() {
 
   // 🔹 Fetch posts from backend
   const fetchPosts = async () => {
-    const res = await fetch("http://127.0.0.1:8000/api/posts/?limit=10");
+    const res = await fetch(`${API_BASE}/api/posts/?limit=10`);
     const data = await res.json();
     if (user) {
       setPosts(data.filter((post) => post.user === user));
@@ -46,7 +47,7 @@ function Dashboard() {
     if (imageFile) formData.append("image", imageFile);
     if (content.trim()) formData.append("content", content.trim());
 
-    const res = await fetch("http://127.0.0.1:8000/api/posts/", {
+    const res = await fetch(`${API_BASE}/api/posts/`, {
         method: "POST",
         headers: {
          Authorization: accessToken ? `Bearer ${accessToken}` : "",
@@ -70,7 +71,7 @@ function Dashboard() {
   };
 
   const loadComments = async (postId) => {
-    const res = await fetch(`http://127.0.0.1:8000/api/comments/post/${postId}/`);
+    const res = await fetch(`${API_BASE}/api/comments/post/${postId}/`);
     const data = await res.json();
     setCommentsByPost((prev) => ({ ...prev, [postId]: data }));
   };
@@ -79,7 +80,7 @@ function Dashboard() {
     const draft = (commentDrafts[postId] || "").trim();
     if (!draft) return;
 
-    const res = await fetch(`http://127.0.0.1:8000/api/comments/post/${postId}/`, {
+    const res = await fetch(`${API_BASE}/api/comments/post/${postId}/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -131,7 +132,7 @@ function Dashboard() {
             {post.content && <p>{post.content}</p>}
             {post.image && (
               <img
-                src={`http://127.0.0.1:8000${post.image}`}
+                src={`${API_BASE}${post.image}`}
                 alt="post"
               />
             )}

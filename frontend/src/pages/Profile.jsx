@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_BASE } from "../apiBase";
 
 function Profile() {
   const accessToken = localStorage.getItem("access");
@@ -8,7 +9,7 @@ function Profile() {
 
   const fetchMe = async () => {
     if (!accessToken) return;
-    const res = await fetch("http://127.0.0.1:8000/api/leaderboard/me/", {
+    const res = await fetch(`${API_BASE}/api/leaderboard/me/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
