@@ -1,0 +1,11 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7ff, #eef1ff);
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+    font-weight: 500;
+}

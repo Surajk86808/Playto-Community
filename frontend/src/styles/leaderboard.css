@@ -1,0 +1,79 @@
+.leaderboard-page {
+    max-width: 700px;
+    margin: 30px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.leaderboard-page h2 {
+    margin: 0 0 16px 0;
+    color: #2575fc;
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.leaderboard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #f7f9ff;
+}
+
+.leaderboard-row.highlight {
+    border: 2px solid #6a11cb;
+    background: #efe8ff;
+}
+
+.rank {
+    font-weight: 700;
+    color: #6a11cb;
+}
+
+.name {
+    font-weight: 600;
+}
+
+.karma {
+    color: #444;
+}
+
+.name-link {
+    font-weight: 600;
+    color: #2575fc;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.me-card {
+    margin: 12px 0 18px 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fff7e6;
+    border: 1px solid #ffd9a3;
+}
+
+.me-rank {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.me-karma {
+    color: #444;
+    margin-bottom: 6px;
+}
+
+.profile-link {
+    color: #2575fc;
+    font-weight: 600;
+    text-decoration: none;
+}
