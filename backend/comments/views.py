@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 
 from posts.models import Post
 from .models import Comment
@@ -21,6 +22,7 @@ class PostCommentsView(APIView):
             Comment.objects
             .filter(post_id=post_id)
             .select_related("author")
+            .annotate(like_count=Count("likes", distinct=True))
             .order_by("created_at")
         )
 
@@ -33,6 +35,7 @@ class PostCommentsView(APIView):
                 "author": comment.author.username,
                 "created_at": comment.created_at,
                 "parent_id": comment.parent_id,
+                "like_count": comment.like_count,
                 "children": [],
             }
             nodes[comment.id] = node
@@ -72,6 +75,7 @@ class PostCommentsView(APIView):
                 "author": comment.author.username,
                 "created_at": comment.created_at,
                 "parent_id": comment.parent_id,
+                "like_count": 0,
                 "children": [],
             },
             status=201,

@@ -1,4 +1,4 @@
-import "../styles/feed.css";
+﻿import "../styles/feed.css";
 import "../styles/post.css";
 import { useEffect, useState } from "react";
 import { API_BASE } from "../apiBase";
@@ -54,6 +54,25 @@ function Feed() {
     setOpenCommentsByPost((prev) => ({ ...prev, [postId]: true }));
   };
 
+  const toggleComments = (postId) => {
+    if (openCommentsByPost[postId]) {
+      setOpenCommentsByPost((prev) => ({ ...prev, [postId]: false }));
+      return;
+    }
+    loadComments(postId);
+  };
+
+  const findCommentById = (list, id) => {
+    for (const item of list) {
+      if (item.id === id) return item;
+      if (item.children && item.children.length > 0) {
+        const found = findCommentById(item.children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
   const likePost = async (postId) => {
     setMessage("");
     if (!accessToken) {
@@ -78,6 +97,54 @@ function Feed() {
     }
 
     fetchPosts();
+  };
+
+  const updateCommentLikeCount = (list, commentId, likeCount) => {
+    return list.map((item) => {
+      if (item.id === commentId) {
+        return { ...item, like_count: likeCount };
+      }
+      if (item.children && item.children.length > 0) {
+        return {
+          ...item,
+          children: updateCommentLikeCount(item.children, commentId, likeCount),
+        };
+      }
+      return item;
+    });
+  };
+
+  const likeComment = async (postId, commentId) => {
+    setMessage("");
+    if (!accessToken) {
+      showLoginPopup("Please login to like comments");
+      return;
+    }
+    const res = await fetch(`${API_BASE}/likes/comment/${commentId}/`, {
+      method: "POST",
+      headers: {
+        Authorization: accessToken ? `Bearer ${accessToken}` : "",
+      },
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      if (res.status === 401) {
+        showLoginPopup("Please login to like comments");
+      } else {
+        showLoginPopup(data.error || "Like failed");
+      }
+      return;
+    }
+
+    if (typeof data.like_count === "number") {
+      setCommentsByPost((prev) => ({
+        ...prev,
+        [postId]: updateCommentLikeCount(prev[postId] || [], commentId, data.like_count),
+      }));
+    } else {
+      loadComments(postId);
+    }
   };
 
   const submitComment = async (postId) => {
@@ -132,9 +199,22 @@ function Feed() {
         <div>
           <strong>{comment.author}</strong>: {comment.content}
         </div>
-        <button type="button" className="comment-reply" onClick={() => setReplyToByPost((prev) => ({ ...prev, [postId]: comment.id }))}>
-          Reply
-        </button>
+        <div className="comment-actions">
+          <button
+            type="button"
+            className="comment-like"
+            onClick={() => likeComment(postId, comment.id)}
+          >
+            ❤ {comment.like_count ?? 0}
+          </button>
+          <button
+            type="button"
+            className="comment-reply"
+            onClick={() => setReplyToByPost((prev) => ({ ...prev, [postId]: comment.id }))}
+          >
+            Reply
+          </button>
+        </div>
         {comment.children && comment.children.length > 0 && (
           <div>
             {comment.children.map((child) => renderComment(child, postId, level + 1))}
@@ -153,21 +233,29 @@ function Feed() {
           <small>{post.created_at}</small>
 
           {post.content && <p>{post.content}</p>}
-          {post.image && (
-            <img className="post-image" src={post.image} alt="post" />
-          )}
+          {post.image && <img className="post-image" src={post.image} alt="post" />}
 
           <div className="actions">
             <button type="button" className="like" onClick={() => likePost(post.id)}>
               ❤ {post.like_count ?? 0} likes
             </button>
-            <button type="button" className="comment-link" onClick={() => loadComments(post.id)}>
-              {openCommentsByPost[post.id] ? "Refresh comments" : "Comments"}
+            <button type="button" className="comment-link" onClick={() => toggleComments(post.id)}>
+              {openCommentsByPost[post.id] ? "Hide comments" : "View all comments"}
             </button>
           </div>
 
           {openCommentsByPost[post.id] && (
             <div>
+              {replyToByPost[post.id] && (
+                <div className="replying-to">
+                  Replying to{" "}
+                  <strong>
+                    @
+                    {(findCommentById(commentsByPost[post.id] || [], replyToByPost[post.id]) || {})
+                      .author || "unknown"}
+                  </strong>
+                </div>
+              )}
               <div className="comment-box">
                 <input
                   placeholder={replyToByPost[post.id] ? "Reply..." : "Write a comment..."}
@@ -175,7 +263,6 @@ function Feed() {
                   onChange={(e) =>
                     setCommentDrafts((prev) => ({ ...prev, [post.id]: e.target.value }))
                   }
-                 
                 />
                 <button type="button" onClick={() => submitComment(post.id)}>
                   Post

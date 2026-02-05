@@ -1,4 +1,8 @@
 .feed {
-    max-width: 700px;
-    margin: auto;
+    max-width: 880px;
+    margin: 24px auto 60px;
+    padding: 24px;
+    border-radius: 24px;
+    background: linear-gradient(160deg, #f7f6f2 0%, #eef7f5 100%);
+    box-shadow: 0 12px 30px rgba(18, 32, 30, 0.08);
 }
