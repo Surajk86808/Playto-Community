@@ -1,251 +1,176 @@
 # Playto Community Platform
 
-A full-stack social media platform built with Django (backend) and React (frontend), featuring user authentication, posts with images, nested comments, real-time karma leaderboard, and like functionality.
+A social platform I built for the Playto coding challenge. It's basically a mini social network where users can post stuff, comment on things, like content, and compete on a karma leaderboard.
 
-## 🌟 Features
+## What I Built
 
-- **User Authentication**: JWT-based login and registration
-- **Post Creation**: Create posts with text and/or images
-- **Nested Comments**: Threaded comment system with unlimited nesting
-- **Like System**: Like posts and comments with karma tracking
-- **Leaderboard**: Real-time 24-hour karma leaderboard
-- **User Profiles**: View profile with rank and karma statistics
-- **Responsive Design**: Mobile-friendly UI with gradient aesthetics
+The app has all the standard social media features you'd expect:
 
-## 🏗️ Tech Stack
+- Users can sign up and log in (JWT tokens for auth)
+- Create posts with text and/or images
+- Comment system with nested replies (you can reply to replies)
+- Like posts and comments (gives karma to the author)
+- 24-hour leaderboard showing who earned the most karma
+- User profiles showing your rank and karma score
 
-### Backend
-- **Django 6.0.1**: Web framework
-- **Django REST Framework**: API development
-- **JWT Authentication**: djangorestframework-simplejwt
-- **PostgreSQL**: Database (SQLite for local dev)
-- **Pillow**: Image processing
+## Stack
 
-### Frontend
-- **React 19**: UI framework
-- **React Router v7**: Client-side routing
-- **Vite**: Build tool and dev server
-- **Modern CSS**: Gradients and responsive design
+**Backend:**
+- Django 6.0.1 - went with Django because I'm comfortable with it
+- Django REST Framework for the API
+- JWT tokens for authentication
+- PostgreSQL in production (SQLite for local dev)
+- Cloudinary for image hosting
 
-## 📋 Prerequisites
+**Frontend:**
+- React 19 - just used functional components and hooks
+- React Router v7 for navigation
+- Vite as the build tool
+- Plain CSS (no frameworks, just gradients and flexbox)
 
-- **Docker & Docker Compose** (recommended) OR
-- **Python 3.11+** and **Node.js 20+** (for manual setup)
-- **Git**
+## Running Locally
 
-## 🚀 Quick Start (Docker)
+### With Docker (easiest)
 
-### 1. Clone the Repository
 ```bash
 git clone https://github.com/yourusername/playto-community.git
 cd playto-community
-```
-
-### 2. Start the Application
-```bash
 docker-compose up --build
 ```
 
-This will:
-- Start PostgreSQL database
-- Run Django backend on `http://localhost:8000`
-- Serve React frontend on `http://localhost:80`
+Then open http://localhost:3000 - that's it!
 
-### 3. Create a Superuser (Optional)
-```bash
-docker-compose exec backend python manage.py createsuperuser
-```
+### Without Docker
 
-### 4. Access the Application
-- **Frontend**: http://localhost
-- **Backend API**: http://localhost:8000/api/
-- **Admin Panel**: http://localhost:8000/admin/
+If you prefer running things manually:
 
-## 🛠️ Manual Setup (Without Docker)
-
-### Backend Setup
-
+**Backend:**
 ```bash
 cd backend
-
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Run migrations
 python manage.py migrate
-
-# Create superuser (optional)
-python manage.py createsuperuser
-
-# Start development server
 python manage.py runserver
 ```
 
-Backend will run on `http://localhost:8000`
-
-### Frontend Setup
-
+**Frontend:**
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
 
-Frontend will run on `http://localhost:5173`
+Note: You'll need to update the API_BASE in `frontend/src/apiBase.js` to `http://localhost:8000`
 
-**Note**: Update API URLs in frontend code to point to `http://localhost:8000`
+## Deploying to Google Cloud
 
-## 🌐 Deployment to Google Cloud Platform
+I deployed this on Google Cloud Run. There's a script for it:
 
-### Prerequisites
-- GCP Account with billing enabled
-- gcloud CLI installed and configured
-
-### Setup Steps
-
-1. **Configure Project**
-```bash
-# Edit deploy-gcp.sh and update:
-PROJECT_ID="your-gcp-project-id"
-```
-
-2. **Deploy**
 ```bash
 chmod +x deploy-gcp.sh
 ./deploy-gcp.sh
 ```
 
-3. **Update Environment Variables**
-After deployment, update the backend's `ALLOWED_HOSTS` and frontend's API URL with the actual Cloud Run URLs.
+Just make sure to update `PROJECT_ID` in the script first.
 
-### Manual GCP Deployment
-
-#### 1. Setup Cloud SQL
-```bash
-gcloud sql instances create playto-db \
-  --database-version=POSTGRES_16 \
-  --tier=db-f1-micro \
-  --region=us-central1
-
-gcloud sql databases create playto_community \
-  --instance=playto-db
-```
-
-#### 2. Build & Push Images
-```bash
-# Backend
-docker build -t gcr.io/[PROJECT-ID]/playto-backend ./backend
-docker push gcr.io/[PROJECT-ID]/playto-backend
-
-# Frontend
-docker build -t gcr.io/[PROJECT-ID]/playto-frontend ./frontend
-docker push gcr.io/[PROJECT-ID]/playto-frontend
-```
-
-#### 3. Deploy to Cloud Run
-```bash
-# Backend
-gcloud run deploy playto-backend \
-  --image gcr.io/[PROJECT-ID]/playto-backend \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated
-
-# Frontend
-gcloud run deploy playto-frontend \
-  --image gcr.io/[PROJECT-ID]/playto-frontend \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated
-```
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 playto-community/
 ├── backend/
-│   ├── accounts/          # User authentication
-│   ├── posts/             # Post management
-│   ├── comments/          # Nested comments
+│   ├── accounts/          # Login/register stuff
+│   ├── posts/             # Post creation and retrieval
+│   ├── comments/          # Nested comment system
 │   ├── likes/             # Like functionality
-│   ├── karma/             # Leaderboard & karma
-│   ├── backend/           # Django settings
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   └── manage.py
+│   ├── karma/             # Leaderboard calculations
+│   └── backend/           # Settings and config
 ├── frontend/
 │   ├── src/
-│   │   ├── components/    # Reusable components
-│   │   ├── pages/         # Page components
-│   │   ├── styles/        # CSS files
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   ├── package.json
-│   └── vite.config.js
-├── docker-compose.yml
-├── cloudbuild.yaml
-├── deploy-gcp.sh
-└── README.md
+│   │   ├── components/    # Navbar and reusable stuff
+│   │   ├── pages/         # Main pages
+│   │   └── styles/        # CSS files
+│   └── ...
+└── docker-compose.yml
 ```
 
-## 🔑 API Endpoints
+## How Some Things Work
 
-### Authentication
-- `POST /api/accounts/register/` - Register new user
-- `POST /api/accounts/login/` - Login user
-- `POST /api/accounts/logout/` - Logout user
-- `POST /api/accounts/token/refresh/` - Refresh JWT token
+### Nested Comments
 
-### Posts
-- `GET /api/posts/` - List posts (with ?limit=N)
-- `POST /api/posts/` - Create post (requires auth)
-
-### Comments
-- `GET /api/comments/post/<id>/` - Get comments for post
-- `POST /api/comments/post/<id>/` - Add comment (requires auth)
-
-### Likes
-- `POST /api/likes/post/<id>/` - Toggle post like (requires auth)
-- `POST /api/likes/comment/<id>/` - Toggle comment like (requires auth)
+I used an adjacency list pattern - each comment has a `parent_id` field. To avoid N+1 queries, I fetch all comments in one go, then build the tree structure in Python. Works pretty well even with hundreds of comments.
 
 ### Leaderboard
-- `GET /api/leaderboard/` - Top 5 users (24h karma)
-- `GET /api/leaderboard/me/` - Current user's rank (requires auth)
 
-## 🧪 Testing
+The leaderboard aggregates karma from the last 24 hours using Django's ORM:
 
-### Backend Tests
-```bash
-cd backend
-python manage.py test
+```python
+KarmaTransaction.objects
+    .filter(created_at__gte=now() - timedelta(hours=24))
+    .values("user__username")
+    .annotate(karma=Sum("points"))
+    .order_by("-karma")[:5]
 ```
 
-### Frontend Tests
-```bash
-cd frontend
-npm run test
+Single query, sorted in the database. Simple and fast.
+
+### Image Upload
+
+Images go to Cloudinary instead of the server. This keeps the backend stateless and makes deployment easier. The form sends a multipart upload and Django creates the post with the Cloudinary URL.
+
+## Things I Fixed
+
+The initial AI-generated code had some issues:
+
+1. **Comment form state** - All posts shared one state variable, so typing in one box updated all of them. Fixed by using a dictionary keyed by post ID.
+
+2. **N+1 queries** - Was hitting the database hundreds of times per page load. Added `select_related()` and `annotate()` to do everything in 1-2 queries.
+
+3. **Missing auth checks** - Some endpoints would crash if you weren't logged in. Added permission classes and error handling.
+
+## Known Issues
+
+- No real-time updates (you have to refresh to see new content)
+- No pagination yet (just shows latest 10 posts)
+- Mobile UI could be better
+- No direct messages or notifications
+- Profile page is pretty basic
+
+## If I Had More Time
+
+- Add WebSockets for real-time updates
+- Implement proper pagination with infinite scroll
+- Add profile pictures and user bios
+- Build a notification system
+- Add post editing/deletion
+- Maybe add hashtags or categories
+
+## API Endpoints
+
+Quick reference:
+
+```
+POST   /accounts/register/           - Create account
+POST   /accounts/login/              - Get JWT tokens
+POST   /accounts/logout/             - Logout
+GET    /posts/                       - Get posts (use ?limit=N)
+POST   /posts/                       - Create post (auth required)
+GET    /comments/post/<id>/          - Get comments for a post
+POST   /comments/post/<id>/          - Add comment (auth required)
+POST   /likes/post/<id>/             - Toggle post like (auth required)
+POST   /likes/comment/<id>/          - Toggle comment like (auth required)
+GET    /leaderboard/                 - Top 5 users (24h)
+GET    /leaderboard/me/              - Your rank (auth required)
 ```
 
-## 🔧 Configuration
+## Environment Setup
 
-### Environment Variables
-
-**Backend** (`backend/.env`):
+**Backend** (`.env`):
 ```env
-DEBUG=False
-SECRET_KEY=your-secret-key
 DATABASE_URL=postgresql://user:pass@host:5432/dbname
-ALLOWED_HOSTS=localhost,127.0.0.1,your-domain.com
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
 **Frontend** (build-time):
@@ -253,52 +178,32 @@ ALLOWED_HOSTS=localhost,127.0.0.1,your-domain.com
 VITE_API_URL=https://your-backend-url.com
 ```
 
-## 📝 Usage
+## Troubleshooting
 
-1. **Register**: Create a new account
-2. **Login**: Access your dashboard
-3. **Create Posts**: Share text and/or images
-4. **Engage**: Like posts and add nested comments
-5. **Track Karma**: View leaderboard to see top contributors
-6. **Profile**: Check your rank and karma score
-
-## 🐛 Troubleshooting
-
-### Docker Issues
+**Docker not working?**
 ```bash
-# Reset everything
 docker-compose down -v
 docker-compose up --build
 ```
 
-### Database Migrations
+**Database issues?**
 ```bash
-# Inside backend container
-docker-compose exec backend python manage.py makemigrations
 docker-compose exec backend python manage.py migrate
 ```
 
-### CORS Errors
-Update `CORS_ALLOWED_ORIGINS` in `backend/backend/settings.py` with your frontend URL.
+**CORS errors?**
+Check `CORS_ALLOWED_ORIGINS` in `backend/backend/settings.py`
 
-## 🤝 Contributing
+## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+This was a solo project for a coding challenge, but if you want to fork it and improve it, go ahead! PRs welcome.
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License.
+MIT - do whatever you want with it.
 
-## 👨‍💻 Author
+## Author
 
-Suraj Kumar - [GitHub Profile](https://github.com/surajk86808)
+Suraj Kumar - [GitHub](https://github.com/surajk86808)
 
-## 🙏 Acknowledgments
-
-- Django & React communities
-- Playto for the challenge
-- AI assistance in development
+Built this over a weekend for the Playto challenge. Learned a lot about nested data structures and query optimization along the way!
