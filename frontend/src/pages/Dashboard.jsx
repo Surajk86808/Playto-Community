@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { API_BASE } from "../apiBase";
 import "../styles/dashboard.css";
 
@@ -12,6 +12,11 @@ function Dashboard() {
   const [message, setMessage] = useState("");
   const [commentsByPost, setCommentsByPost] = useState({});
   const [commentDrafts, setCommentDrafts] = useState({});
+
+  const showLoginPopup = (text) => {
+    // Simple popup warning
+    window.alert(text);
+  };
 
   const safeJson = async (res) => {
     try {
@@ -60,10 +65,10 @@ function Dashboard() {
     if (content.trim()) formData.append("content", content.trim());
 
     const res = await fetch(`${API_BASE}/posts/`, {
-        method: "POST",
-        headers: {
-         Authorization: accessToken ? `Bearer ${accessToken}` : "",
-        },
+      method: "POST",
+      headers: {
+        Authorization: accessToken ? `Bearer ${accessToken}` : "",
+      },
       body: formData,
     });
 
@@ -76,10 +81,10 @@ function Dashboard() {
       return;
     }
 
-    setMessage("Post uploaded ");
+    setMessage("Post uploaded");
     setImageFile(null);
     setContent("");
-    fetchPosts(); 
+    fetchPosts();
   };
 
   const loadComments = async (postId) => {
@@ -95,6 +100,10 @@ function Dashboard() {
   const submitComment = async (postId, parentId = null) => {
     const draft = (commentDrafts[postId] || "").trim();
     if (!draft) return;
+    if (!accessToken) {
+      showLoginPopup("Please login to comment");
+      return;
+    }
 
     const res = await fetch(`${API_BASE}/comments/post/${postId}/`, {
       method: "POST",
@@ -116,46 +125,48 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-   
       <div className="dashboard-header">
-        <h2>Welcome, {user} 👋</h2>
-        <p>
-          Total Posts: <strong>{posts.length}</strong>
-        </p>
+        <div>
+          <h2 className="dashboard-title">Welcome, {user} 👋</h2>
+          <p className="dashboard-subtitle">Share an update or drop a photo from your day.</p>
+        </div>
+        <div className="dashboard-stats">
+          <span>Total Posts</span>
+          <strong>{posts.length}</strong>
+        </div>
       </div>
 
-      
       <form className="post-box" onSubmit={createPost}>
-        <textarea
-          placeholder="What's on your mind?"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <input type="file" accept="image/*" onChange={handleImageChange} />
-        <button type="submit">Post</button>
+        <div className="post-inputs">
+          <textarea
+            placeholder="What's on your mind?"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+        </div>
+        <button type="submit" className="post-btn">Post</button>
       </form>
 
-      {message && <p>{message}</p>}
+      {message && <p className="dashboard-message">{message}</p>}
 
       {/* Posts */}
       <div className="post-list">
         {posts.map((post) => (
           <div key={post.id} className="post-card">
-            <div>
+            <div className="post-meta">
               <strong>{post.user}</strong>
               <span> • {post.created_at}</span>
             </div>
             {post.content && <p>{post.content}</p>}
-            {post.image && (
-              <img src={post.image} alt="post" />
-            )}
-            <div>
-              Likes: <strong>{post.like_count ?? 0}</strong>
+            {post.image && <img src={post.image} alt="post" />}
+            <div className="post-actions">
+              <span>Likes: <strong>{post.like_count ?? 0}</strong></span>
+              <button type="button" className="comment-btn" onClick={() => loadComments(post.id)}>
+                Load comments
+              </button>
             </div>
-            <button type="button" onClick={() => loadComments(post.id)}>
-              Load comments
-            </button>
-            <div>
+            <div className="comment-box">
               <input
                 placeholder="Write a comment..."
                 value={commentDrafts[post.id] || ""}
@@ -167,9 +178,9 @@ function Dashboard() {
                 Comment
               </button>
             </div>
-            <div>
+            <div className="comment-list">
               {(commentsByPost[post.id] || []).map((c) => (
-                <div key={c.id}>
+                <div key={c.id} className="comment-item">
                   <strong>{c.author}</strong>: {c.content}
                 </div>
               ))}

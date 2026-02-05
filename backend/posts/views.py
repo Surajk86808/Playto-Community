@@ -5,6 +5,7 @@ from .models import Post
 from .serializers import PostSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404
 
 class PostListCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -46,3 +47,18 @@ class PostListCreateView(APIView):
         post = Post.objects.create(user=request.user, content=content, image=image)
         serializer = PostSerializer(post)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class PostImageDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        if post.user != request.user:
+            return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
+        if post.image:
+            post.image.delete(save=False)
+            post.image = None
+            post.save(update_fields=["image"])
+        return Response(status=status.HTTP_204_NO_CONTENT)

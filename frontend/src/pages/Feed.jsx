@@ -13,6 +13,11 @@ function Feed() {
   const [message, setMessage] = useState("");
   const [commentErrorByPost, setCommentErrorByPost] = useState({});
 
+  const showLoginPopup = (text) => {
+    // Simple popup warning
+    window.alert(text);
+  };
+
   const safeJson = async (res) => {
     try {
       return await res.json();
@@ -52,7 +57,7 @@ function Feed() {
   const likePost = async (postId) => {
     setMessage("");
     if (!accessToken) {
-      setMessage("Please login to like posts");
+      showLoginPopup("Please login to like posts");
       return;
     }
     const res = await fetch(`${API_BASE}/likes/post/${postId}/`, {
@@ -64,7 +69,7 @@ function Feed() {
 
     if (!res.ok) {
       if (res.status === 401) {
-        setMessage("Unauthorized: please login again");
+        showLoginPopup("Please login to like posts");
       } else {
         const data = await res.json().catch(() => ({}));
         setMessage(data.error || "Like failed");
@@ -81,8 +86,9 @@ function Feed() {
     if (!accessToken) {
       setCommentErrorByPost((prev) => ({
         ...prev,
-        [postId]: "Unauthorized: please login again",
+        [postId]: "Please login to comment",
       }));
+      showLoginPopup("Please login to comment");
       return;
     }
 
@@ -102,7 +108,7 @@ function Feed() {
       if (res.status === 401) {
         setCommentErrorByPost((prev) => ({
           ...prev,
-          [postId]: "Unauthorized: please login again",
+          [postId]: "Please login to comment",
         }));
       } else {
         setCommentErrorByPost((prev) => ({
@@ -152,7 +158,7 @@ function Feed() {
           )}
 
           <div className="actions">
-            <button type="button" className="like" onClick={() => likePost(post.id)} disabled={!accessToken}>
+            <button type="button" className="like" onClick={() => likePost(post.id)}>
               ❤ {post.like_count ?? 0} likes
             </button>
             <button type="button" className="comment-link" onClick={() => loadComments(post.id)}>
@@ -169,9 +175,9 @@ function Feed() {
                   onChange={(e) =>
                     setCommentDrafts((prev) => ({ ...prev, [post.id]: e.target.value }))
                   }
-                  disabled={!accessToken}
+                 
                 />
-                <button type="button" onClick={() => submitComment(post.id)} disabled={!accessToken}>
+                <button type="button" onClick={() => submitComment(post.id)}>
                   Post
                 </button>
                 {replyToByPost[post.id] && (
