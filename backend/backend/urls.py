@@ -14,19 +14,28 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
+from django.http import JsonResponse
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+def health(request):
+    return JsonResponse({"status": "ok"})
+
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    path("api/posts/", include("posts.urls")),
-    path("api/comments/", include("comments.urls")),
-    path("api/likes/", include("likes.urls")),
-    path("api/leaderboard/", include("karma.urls")),
-    path("api/accounts/", include("accounts.urls")),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("posts/", include("posts.urls")),
+    path("comments/", include("comments.urls")),
+    path("likes/", include("likes.urls")),
+    path("leaderboard/", include("karma.urls")),
+    path("accounts/", include("accounts.urls")),
+    path("", health),
+]
 
+
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -11,26 +11,42 @@ function Leaderboard() {
   const [me, setMe] = useState(null);
   const navigate = useNavigate();
 
+  const safeJson = async (res) => {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
   const fetchLeaderboard = async () => {
     setMessage("");
-    const res = await fetch(`${API_BASE}/api/leaderboard/`);
+    const res = await fetch(`${API_BASE}/leaderboard/`);
     if (!res.ok) {
       setMessage("Failed to load leaderboard");
       return;
     }
-    const data = await res.json();
+    const data = await safeJson(res);
+    if (!data) {
+      setMessage("Server error (not JSON)");
+      return;
+    }
     setRows(data);
   };
 
   const fetchMe = async () => {
     if (!accessToken) return;
-    const res = await fetch(`${API_BASE}/api/leaderboard/me/`, {
+    const res = await fetch(`${API_BASE}/leaderboard/me/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
     if (!res.ok) return;
-    const data = await res.json();
+    const data = await safeJson(res);
+    if (!data) {
+      setMessage("Server error (not JSON)");
+      return;
+    }
     setMe(data);
   };
 

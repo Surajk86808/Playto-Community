@@ -1,14 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/navbar.css";
+import { clearAuth, getAccessToken, getUser, isTokenExpired } from "../auth";
 
 function Navbar() {
   const navigate = useNavigate();
-  const isLoggedIn = localStorage.getItem("user");
+  const token = getAccessToken();
+  const user = getUser();
+  const isLoggedIn = !!user && !!token && !isTokenExpired(token);
 
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
+    clearAuth();
     navigate("/login");
     window.location.reload();
   };

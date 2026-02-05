@@ -13,9 +13,21 @@ function Feed() {
   const [message, setMessage] = useState("");
   const [commentErrorByPost, setCommentErrorByPost] = useState({});
 
+  const safeJson = async (res) => {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
   const fetchPosts = async () => {
-    const res = await fetch(`${API_BASE}/api/posts/?limit=10`);
-    const data = await res.json();
+    const res = await fetch(`${API_BASE}/posts/?limit=10`);
+    const data = await safeJson(res);
+    if (!data) {
+      setMessage("Server error (not JSON)");
+      return;
+    }
     setPosts(data);
   };
 
@@ -24,8 +36,15 @@ function Feed() {
   }, []);
 
   const loadComments = async (postId) => {
-    const res = await fetch(`${API_BASE}/api/comments/post/${postId}/`);
-    const data = await res.json();
+    const res = await fetch(`${API_BASE}/comments/post/${postId}/`);
+    const data = await safeJson(res);
+    if (!data) {
+      setCommentErrorByPost((prev) => ({
+        ...prev,
+        [postId]: "Server error (not JSON)",
+      }));
+      return;
+    }
     setCommentsByPost((prev) => ({ ...prev, [postId]: data }));
     setOpenCommentsByPost((prev) => ({ ...prev, [postId]: true }));
   };
@@ -36,7 +55,7 @@ function Feed() {
       setMessage("Please login to like posts");
       return;
     }
-    const res = await fetch(`${API_BASE}/api/likes/post/${postId}/`, {
+    const res = await fetch(`${API_BASE}/likes/post/${postId}/`, {
       method: "POST",
       headers: {
         Authorization: accessToken ? `Bearer ${accessToken}` : "",
@@ -67,7 +86,7 @@ function Feed() {
       return;
     }
 
-    const res = await fetch(`${API_BASE}/api/comments/post/${postId}/`, {
+    const res = await fetch(`${API_BASE}/comments/post/${postId}/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -129,7 +148,7 @@ function Feed() {
 
           {post.content && <p>{post.content}</p>}
           {post.image && (
-            <img className="post-image" src={`${API_BASE}${post.image}`} alt="post" />
+            <img className="post-image" src={post.image} alt="post" />
           )}
 
           <div className="actions">

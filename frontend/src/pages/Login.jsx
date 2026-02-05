@@ -15,7 +15,7 @@ function Login() {
 
     let res;
     try {
-      res = await fetch(`${API_BASE}/api/accounts/login/`, {
+      res = await fetch(`${API_BASE}/accounts/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

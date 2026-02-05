@@ -9,3 +9,4 @@ frontend/dist
 *.sqlite3
 *.log
 *.env
+.env.local

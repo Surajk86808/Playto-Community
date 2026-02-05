@@ -23,25 +23,27 @@ services:
       SECRET_KEY: "dev-secret-key"
       ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
       DATABASE_URL: "postgresql://playto:playto@db:5432/playto_community"
+      PORT: "8080" # Match your Dockerfile and Cloud Run
     volumes:
       - ./backend:/app
       - backend_media:/app/media
     ports:
-      - "8000:8000"
+      - "8080:8080" # Changed from 8000 to match your Cloud Run setup
     depends_on:
       db:
         condition: service_healthy
     command: >
       sh -c "python manage.py migrate
-      && python manage.py runserver 0.0.0.0:8000"
+      && python manage.py runserver 0.0.0.0:8080"
 
   frontend:
     build:
       context: ./frontend
       args:
-        VITE_API_URL: /api
+        # This tells Vite where to send API requests
+        - VITE_API_URL=http://localhost:8080 
     ports:
-      - "80:80"
+      - "3000:8080" # Maps your browser's port 3000 to container's 8080
     depends_on:
       - backend
 

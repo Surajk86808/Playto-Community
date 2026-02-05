@@ -7,9 +7,17 @@ function Profile() {
   const [me, setMe] = useState(null);
   const [message, setMessage] = useState("");
 
+  const safeJson = async (res) => {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
   const fetchMe = async () => {
     if (!accessToken) return;
-    const res = await fetch(`${API_BASE}/api/leaderboard/me/`, {
+    const res = await fetch(`${API_BASE}/leaderboard/me/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -18,7 +26,11 @@ function Profile() {
       setMessage("Failed to load profile");
       return;
     }
-    const data = await res.json();
+    const data = await safeJson(res);
+    if (!data) {
+      setMessage("Server error (not JSON)");
+      return;
+    }
     setMe(data);
   };
 

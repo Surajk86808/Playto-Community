@@ -13,10 +13,22 @@ function Dashboard() {
   const [commentsByPost, setCommentsByPost] = useState({});
   const [commentDrafts, setCommentDrafts] = useState({});
 
+  const safeJson = async (res) => {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
   // 🔹 Fetch posts from backend
   const fetchPosts = async () => {
-    const res = await fetch(`${API_BASE}/api/posts/?limit=10`);
-    const data = await res.json();
+    const res = await fetch(`${API_BASE}/posts/?limit=10`);
+    const data = await safeJson(res);
+    if (!data) {
+      setMessage("Server error (not JSON)");
+      return;
+    }
     if (user) {
       setPosts(data.filter((post) => post.user === user));
     } else {
@@ -47,7 +59,7 @@ function Dashboard() {
     if (imageFile) formData.append("image", imageFile);
     if (content.trim()) formData.append("content", content.trim());
 
-    const res = await fetch(`${API_BASE}/api/posts/`, {
+    const res = await fetch(`${API_BASE}/posts/`, {
         method: "POST",
         headers: {
          Authorization: accessToken ? `Bearer ${accessToken}` : "",
@@ -71,8 +83,12 @@ function Dashboard() {
   };
 
   const loadComments = async (postId) => {
-    const res = await fetch(`${API_BASE}/api/comments/post/${postId}/`);
-    const data = await res.json();
+    const res = await fetch(`${API_BASE}/comments/post/${postId}/`);
+    const data = await safeJson(res);
+    if (!data) {
+      setMessage("Server error (not JSON)");
+      return;
+    }
     setCommentsByPost((prev) => ({ ...prev, [postId]: data }));
   };
 
@@ -80,7 +96,7 @@ function Dashboard() {
     const draft = (commentDrafts[postId] || "").trim();
     if (!draft) return;
 
-    const res = await fetch(`${API_BASE}/api/comments/post/${postId}/`, {
+    const res = await fetch(`${API_BASE}/comments/post/${postId}/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -131,10 +147,7 @@ function Dashboard() {
             </div>
             {post.content && <p>{post.content}</p>}
             {post.image && (
-              <img
-                src={`${API_BASE}${post.image}`}
-                alt="post"
-              />
+              <img src={post.image} alt="post" />
             )}
             <div>
               Likes: <strong>{post.like_count ?? 0}</strong>

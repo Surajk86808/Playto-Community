@@ -13,7 +13,7 @@ function Register() {
   const register = async (e) => {
     e.preventDefault();
 
-    const res = await fetch(`${API_BASE}/api/accounts/register/`, {
+    const res = await fetch(`${API_BASE}/accounts/register/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

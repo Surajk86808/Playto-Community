@@ -1,20 +1,28 @@
+#1. The stage name MUST match the --from= name below
 FROM node:20-alpine AS build
 
 WORKDIR /app
 
-COPY package.json package-lock.json /app/
-RUN npm ci
+# Arguments for Vite
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 
-COPY . /app
+COPY package*.json ./
+RUN npm install
 
-ARG VITE_API_URL=/api
-ENV VITE_API_URL=${VITE_API_URL}
-
+COPY . .
 RUN npm run build
 
-FROM nginx:1.27-alpine
+# Production stage
+FROM node:20-alpine
+WORKDIR /app
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
+RUN npm install -g serve
 
-EXPOSE 80
+# 2. This "build" must match the name in line 1
+COPY --from=build /app/dist ./dist
+
+ENV PORT=8080
+EXPOSE 8080
+
+CMD ["serve", "-s", "dist", "-l", "8080"]
